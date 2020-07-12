@@ -1,6 +1,9 @@
 export ALIYUN_COMMONS_MODULE_DIR="$(pwd)";
+export PYTHONPATH="$(pwd)/python:$PYTHONPATH";
 
 pip install aliyun-python-sdk-core-v3 # Install the Alibaba Cloud SDK for Python core library.
+pip install aliyun-python-sdk-ecs
+pip install aliyun-python-sdk-vpc
 #pip install aliyun-python-sdk-rds
 
 function set_alicloud_env() {
