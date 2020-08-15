@@ -73,7 +73,7 @@ class SshGenerator(object):
 
         self.result = """Host {}
     Hostname {}
-    User ubuntu
+    User root
     IdentityFile "{}"                    
                     """.format(bastion_name, bastion_instance["PublicIpAddress"]["IpAddress"][0], key_filename)
 
@@ -95,13 +95,14 @@ class SshGenerator(object):
 
             instance_details_json[real_instance_name].append(
                 self.get_instance_details(instance_name, instance))
-            instance_private_ip = instance["PrivateIpAddress"]
+
+            instance_private_ip = instance['VpcAttributes']['PrivateIpAddress']['IpAddress'][0]
 
             self.result = """{}
        
 Host {}
    Hostname {}
-   User ubuntu
+   User root
    {}
    IdentityFile {}
             """.format(self.result, instance_name, instance_private_ip, proxy_command, key_filename)
