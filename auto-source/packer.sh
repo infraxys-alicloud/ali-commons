@@ -1,30 +1,38 @@
+
+# This ensure_packer function should be moved to a central location since it exists in aws-commons as well
 function ensure_packer() {
-  PACKER_VERSION="${PACKER_VERSION:-"1.6.0"}";
-  export PACKER="/usr/local/bin/packer-$PACKER_VERSION";
-  if [ -f "$filename" ]; then
-    log_info "Using Packer version $PACKER_VERSION.";
-  else
-    log_info "Installing Packer version $PACKER_VERSION";
-    curl -sSLo "/tmp/packer.zip" https://releases.hashicorp.com/packer/$PACKER_VERSION/packer_${PACKER_VERSION}_linux_amd64.zip;
-    cd /tmp && unzip packer.zip;
-    mv packer $PACKER
-    rm -f packer.zip;
-    chmod u+x "$PACKER";
-  fi;
+    local packer_version;
+    import_args "$@";
+    check_required_arguments "ensure_packer" packer_version;
+
+    export PACKER="packer-$packer_version";
+    if [ $(which "$PACKER") ]; then
+        log_info "Packer version $packer_version is already installed at $(which $PACKER).";
+    else
+        log_info "Packer version $packer_version not available. Installing it now in the project cache.";
+        curl -Lo "/tmp/packer.zip" https://releases.hashicorp.com/packer/$packer_version/packer_${packer_version}_linux_amd64.zip;
+        cd /tmp;
+        unzip packer.zip;
+        mv packer "/cache/project/bin/$PACKER";
+        chmod u+x "/cache/project/bin/$PACKER";
+        rm -f packer.zip;
+        cd -;
+        log_info "Packer $packer_version is available at $(which $PACKER)";
+    fi;
 }
 
 function run_aliyun_packer() {
 	local packer_directory ami_name_prefix ami_description source_image vpc_name ssh_username="root" \
 	    ssh_bastion_username ssh_bastion_private_key_file security_group_name vswitch_name aliyun_region aliyun_profile \
-	    instance_type packer_json_file;
+	    instance_type packer_json_file packer_version;
 	import_args "$@";
 	check_required_arguments "run_aliyun_packer" packer_directory ami_name_prefix ami_description vpc_name \
 	    bastion_name ssh_bastion_username ssh_bastion_private_key_file security_group_name vswitch_name aliyun_region \
-	    source_image aliyun_profile instance_type ssh_username packer_json_file;
+	    source_image aliyun_profile instance_type ssh_username packer_json_file packer_version;
 
 	local ssh_bastion_host vpc_id;
 
-	ensure_packer;
+	ensure_packer --packer_version "$packer_version";
 
     get_aliyun_vpc_id --vpc_name "$vpc_name" --region "$aliyun_region" --target_variable_name vpc_id;
     get_aliyun_security_group_id --vpc_id "$vpc_id" --security_group_name $security_group_name --target_variable_name security_group_id;

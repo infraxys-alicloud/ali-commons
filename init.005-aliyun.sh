@@ -1,19 +1,21 @@
-
 function ensure_aliyun() {
-    ALIYUN_CLI_VERSION="${ALIYUN_CLI_VERSION:-"3.0.46"}";
-    export ALIYUN="aliyun-$ALIYUN_CLI_VERSION";
+    local aliyun_version;
+    import_args "$@";
+    check_required_arguments "ensure_aliyun" aliyun_version;
 
+    local ALIYUN="aliyun-$aliyun_version";
     if [ $(which "$ALIYUN") ]; then
-        log_info "Using Aliyun binary $ALIYUN from $(which $ALIYUN)"
+        log_info "Aliyun version $aliyun_version is already installed at $(which $ALIYUN).";
     else
-        log_info "Installing Aliyun version $ALIYUN_CLI_VERSION";
-        curl -sL -o /tmp/aliyun.zip https://aliyuncli.alicdn.com/aliyun-cli-linux-${ALIYUN_CLI_VERSION}-amd64.tgz
+        log_info "Aliyun version $aliyun_version not available. Installing it now in the project cache.";
+        curl -sL -o /tmp/aliyun.zip https://aliyuncli.alicdn.com/aliyun-cli-linux-${aliyun_version}-amd64.tgz
         cd /tmp;
         tar -xzf aliyun.zip;
         chmod u+x aliyun;
         mv aliyun "/cache/project/bin/$ALIYUN";
         rm -f aliyun.zip;
         cd ->/dev/null;
+        log_info "Aliyun $aliyun_version is available at $(which $ALIYUN)";
     fi;
 }
 
@@ -29,7 +31,8 @@ function set_aliyun_profile() {
             log_fatal "$variable_file not found. It's required so it can be copied to ~/.aliyun/config.json.";
         fi;
     fi;
-    ensure_aliyun;
+    ensure_aliyun --aliyun_version "3.0.46";
+    export ALIYUN="aliyun-3.0.46";
     log_info "Using Aliyun binary $(which $ALIYUN).";
     log_info "Setting Aliyun profile to $profile_name.";
     $ALIYUN configure set $profile_name;
