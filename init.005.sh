@@ -1,12 +1,7 @@
 export ALIYUN_COMMONS_MODULE_DIR="$(pwd)";
 export PYTHONPATH="$(pwd)/python:$PYTHONPATH";
 
-if [ -n "$cloud_provider" -a "$cloud_provider" != "ALIYUN" ]; then
-    log_info "Not preparing for Aliyun since cloud_provider is '$cloud_provider'.";
-else
-    if [ -n "$cloud_provider" ]; then
-        log_info "Preparing for Aliyun since environment variable 'cloud_provider' is not set.";
-    fi;
+if [ "$cloud_provider" == "ALIYUN" ]; then
     pip install aliyun-python-sdk-core-v3 # Install the Alibaba Cloud SDK for Python core library.
     pip install aliyun-python-sdk-ecs
     pip install aliyun-python-sdk-vpc
@@ -35,5 +30,5 @@ function set_alicloud_env() {
 if [ -n "$alicloud_key_var_prefix" ]; then
   set_alicloud_env --var_prefix "$alicloud_key_var_prefix" --alicloud_region "$alicloud_region";
 else
-  log_info "Not setting AWS environment automatically because variable 'aws_core_credentials_default_profile_or_role' is not set."
+  log_info "Not setting AWS environment automatically because variable 'alicloud_key_var_prefix' is not set."
 fi;
