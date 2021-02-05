@@ -30,5 +30,5 @@ function set_alicloud_env() {
 if [ -n "$alicloud_key_var_prefix" ]; then
   set_alicloud_env --var_prefix "$alicloud_key_var_prefix" --alicloud_region "$alicloud_region";
 else
-  log_info "Not setting AWS environment automatically because variable 'alicloud_key_var_prefix' is not set."
+  log_info "Not setting Aliyun environment automatically because variable 'alicloud_key_var_prefix' is not set."
 fi;
